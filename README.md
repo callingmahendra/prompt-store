@@ -29,9 +29,9 @@ Prompt Store is a full-stack application designed for managing and sharing promp
 
 **Frontend:**
 
-1.  Navigate to the `frontend` directory:
+1.  Navigate to the `front-end` directory:
     ```bash
-    cd frontend
+    cd front-end
     ```
 2.  Install dependencies:
     ```bash
