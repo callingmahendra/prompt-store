@@ -3,25 +3,46 @@ import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { Copy, Edit, Star, Calendar, User, TrendingUp, MessageSquare, History } from "lucide-react";
+import { Copy, Edit, Star, Calendar, User, TrendingUp, History } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import Comments from "@/components/Comments";
 
 const PromptDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [newComment, setNewComment] = useState("");
+  const [isStarred, setIsStarred] = useState(false);
+  const [starCount, setStarCount] = useState(0);
+  const [comments, setComments] = useState([]);
+  const userId = "user-123"; // This should come from auth context
 
   const { data: prompt, isLoading, isError } = useQuery({
     queryKey: ["prompt", id],
     queryFn: () => api.getPrompt(id!),
     enabled: !!id,
   });
+
+  useEffect(() => {
+    if (prompt) {
+      setStarCount(prompt.stars?.length || 0);
+      setComments(prompt.comments || []);
+      
+      // Check star status
+      const checkStarStatus = async () => {
+        try {
+          const { starred } = await api.getStarStatus(id!, userId);
+          setIsStarred(starred);
+        } catch (error) {
+          console.error('Failed to check star status:', error);
+        }
+      };
+      checkStarStatus();
+    }
+  }, [prompt, id, userId]);
 
   if (isLoading) {
     return (
@@ -75,11 +96,19 @@ const PromptDetail = () => {
     navigate(`/edit/${id}`);
   };
 
-  const handleCommentSubmit = () => {
-    if (newComment.trim()) {
-      toast.success("Comment added successfully!");
-      setNewComment("");
+  const handleStar = async () => {
+    try {
+      const { starred } = await api.toggleStar(id!, userId);
+      setIsStarred(starred);
+      setStarCount(prev => starred ? prev + 1 : prev - 1);
+      toast.success(starred ? "Prompt starred!" : "Prompt unstarred!");
+    } catch (error) {
+      console.error('Failed to toggle star:', error);
     }
+  };
+
+  const handleCommentAdded = (newComment: any) => {
+    setComments(prev => [...prev, newComment]);
   };
 
   return (
@@ -96,6 +125,10 @@ const PromptDetail = () => {
                 <p className="text-xl text-muted-foreground">{prompt.description}</p>
               </div>
               <div className="flex gap-2">
+                <Button onClick={handleStar} variant="outline" className="gap-2">
+                  <Star className={`h-4 w-4 ${isStarred ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                  {starCount}
+                </Button>
                 <Button onClick={handleCopy} className="gap-2">
                   <Copy className="h-4 w-4" />
                   Copy
@@ -119,7 +152,7 @@ const PromptDetail = () => {
             <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">{prompt.rating} Rating</span>
+                <span className="font-medium">{starCount} Stars</span>
               </div>
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
@@ -151,52 +184,12 @@ const PromptDetail = () => {
 
           {/* Comments Section */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                Comments & Feedback
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* New Comment */}
-              <div className="space-y-3">
-                <Textarea
-                  placeholder="Share your experience or suggestions..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  className="min-h-[100px]"
-                />
-                <Button onClick={handleCommentSubmit}>
-                  Post Comment
-                </Button>
-              </div>
-
-              <Separator />
-
-              {/* Existing Comments */}
-              <div className="space-y-4">
-                {prompt.comments.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">
-                    No comments yet. Be the first to share your feedback!
-                  </p>
-                ) : (
-                  prompt.comments.map(comment => (
-                    <div key={comment.id} className="space-y-2 p-4 bg-muted rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{comment.author}</span>
-                          <span className="text-sm text-muted-foreground">{comment.date}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-medium">{comment.rating}</span>
-                        </div>
-                      </div>
-                      <p className="text-sm">{comment.content}</p>
-                    </div>
-                  ))
-                )}
-              </div>
+            <CardContent className="pt-6">
+              <Comments
+                promptId={id!}
+                comments={comments}
+                onCommentAdded={handleCommentAdded}
+              />
             </CardContent>
           </Card>
 

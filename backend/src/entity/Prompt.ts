@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from "typeorm";
 import { Comment } from "./Comment";
 import { Version } from "./Version";
+import { Star } from "./Star";
 
 @Entity()
 export class Prompt {
@@ -36,4 +37,7 @@ export class Prompt {
 
   @OneToMany(() => Version, version => version.prompt)
   versions: Version[];
+
+  @OneToMany(() => Star, star => star.prompt)
+  stars: Star[];
 }

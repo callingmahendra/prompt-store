@@ -3,6 +3,7 @@ import { AppDataSource } from "../index";
 import { Prompt } from "../entity/Prompt";
 import { Comment } from "../entity/Comment";
 import { Version } from "../entity/Version";
+import { Star } from "../entity/Star";
 import { validatePromptInput, validateCommentInput, validateVersionInput } from "../middleware/validation";
 
 const router = Router();
@@ -13,7 +14,7 @@ router.get("/", async (_req, res) => {
   try {
     const promptRepository = AppDataSource.getRepository(Prompt);
     const prompts = await promptRepository.find({
-      relations: ["comments", "versions"],
+      relations: ["comments", "versions", "stars"],
     });
     return res.json(prompts);
   } catch (error) {
@@ -27,7 +28,7 @@ router.get("/:id", async (req, res) => {
     const promptRepository = AppDataSource.getRepository(Prompt);
     const prompt = await promptRepository.findOne({
       where: { id: req.params.id },
-      relations: ["comments", "versions"],
+      relations: ["comments", "versions", "stars"],
     });
     if (!prompt) {
       return res.status(404).json({ error: "Prompt not found" });
@@ -117,6 +118,55 @@ router.post("/:id/versions", validateVersionInput, async (req, res) => {
     return res.status(201).json(version);
   } catch (error) {
     return res.status(500).json({ error: "Error adding version" });
+  }
+});
+
+// Star/unstar a prompt
+router.post("/:id/star", async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const promptRepository = AppDataSource.getRepository(Prompt);
+    const starRepository = AppDataSource.getRepository(Star);
+    
+    const prompt = await promptRepository.findOneBy({ id: req.params.id });
+    if (!prompt) {
+      return res.status(404).json({ error: "Prompt not found" });
+    }
+
+    // Check if already starred
+    const existingStar = await starRepository.findOne({
+      where: { userId, prompt: { id: req.params.id } }
+    });
+
+    if (existingStar) {
+      // Unstar
+      await starRepository.remove(existingStar);
+      return res.json({ starred: false, message: "Prompt unstarred" });
+    } else {
+      // Star
+      const star = starRepository.create({ userId, prompt });
+      await starRepository.save(star);
+      return res.json({ starred: true, message: "Prompt starred" });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: "Error toggling star" });
+  }
+});
+
+// Get star status for a user
+router.get("/:id/star/:userId", async (req, res) => {
+  try {
+    const starRepository = AppDataSource.getRepository(Star);
+    const star = await starRepository.findOne({
+      where: { userId: req.params.userId, prompt: { id: req.params.id } }
+    });
+    return res.json({ starred: !!star });
+  } catch (error) {
+    return res.status(500).json({ error: "Error checking star status" });
   }
 });
 

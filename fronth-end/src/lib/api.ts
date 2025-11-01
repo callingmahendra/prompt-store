@@ -22,7 +22,9 @@ const handleError = (error: any) => {
   throw error;
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
+console.log('API_BASE_URL:', API_BASE_URL);
 
 export const api = {
   // Prompts
@@ -131,6 +133,37 @@ export const api = {
       });
       if (!response.ok) {
         throw new APIError(response.status, 'Failed to add version');
+      }
+      return response.json();
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  // Stars
+  toggleStar: async (promptId: string, userId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/prompts/${promptId}/star`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+      if (!response.ok) {
+        throw new APIError(response.status, 'Failed to toggle star');
+      }
+      return response.json();
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  getStarStatus: async (promptId: string, userId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/prompts/${promptId}/star/${userId}`);
+      if (!response.ok) {
+        throw new APIError(response.status, 'Failed to get star status');
       }
       return response.json();
     } catch (error) {

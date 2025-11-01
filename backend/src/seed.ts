@@ -1,13 +1,15 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { Prompt } from "./entity/Prompt";
+import { Comment } from "./entity/Comment";
+import { Version } from "./entity/Version";
 
 const AppDataSource = new DataSource({
   type: "sqlite",
   database: "database.sqlite",
   synchronize: true,
   logging: true,
-  entities: [Prompt]
+  entities: [Prompt, Comment, Version]
 });
 
 const mockPrompts = [
@@ -74,7 +76,7 @@ const seedDatabase = async () => {
     const promptRepository = AppDataSource.getRepository(Prompt);
     
     // Clear existing data
-    await promptRepository.delete({});
+    await promptRepository.clear();
     console.log("Cleared existing prompts");
 
     // Insert mock prompts

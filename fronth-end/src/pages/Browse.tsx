@@ -25,7 +25,9 @@ const Browse = () => {
     const fetchPrompts = async () => {
       try {
         setIsLoading(true);
+        console.log('Fetching prompts...');
         const data = await api.getAllPrompts();
+        console.log('Received prompts:', data);
         setPrompts(data);
       } catch (error) {
         console.error('Failed to fetch prompts:', error);
@@ -90,12 +92,12 @@ const Browse = () => {
     });
 
     return filtered;
-  }, [searchQuery, selectedTags, sortBy]);
+  }, [prompts, searchQuery, selectedTags, sortBy]);
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Navigation />
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8 space-y-4">
@@ -144,7 +146,7 @@ const Browse = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               {(searchQuery || selectedTags.length > 0) && (
                 <Button variant="outline" onClick={clearFilters}>
                   Clear Filters
@@ -165,7 +167,7 @@ const Browse = () => {
               <p className="text-muted-foreground">
                 {filteredPrompts.length} {filteredPrompts.length === 1 ? 'prompt' : 'prompts'} found
               </p>
-              
+
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredPrompts.map(prompt => (
                   <PromptCard
@@ -176,8 +178,10 @@ const Browse = () => {
                     tags={prompt.tags}
                     rating={prompt.rating}
                     author={prompt.author}
-                    date={prompt.date}
+                    date={new Date(prompt.date).toLocaleDateString()}
                     usageCount={prompt.usageCount}
+                    stars={prompt.stars || []}
+                    comments={prompt.comments || []}
                   />
                 ))}
               </div>

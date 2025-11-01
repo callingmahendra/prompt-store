@@ -15,8 +15,7 @@ export class Comment {
   @CreateDateColumn()
   date: Date;
 
-  @Column("float", { default: 0 })
-  rating: number;
+
 
   @ManyToOne(() => Prompt, prompt => prompt.comments)
   prompt: Prompt;
