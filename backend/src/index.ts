@@ -5,6 +5,7 @@ import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 import promptRoutes from "./routes/promptRoutes";
 import { errorHandler } from "./middleware/validation";
+import path from "path";
 
 dotenv.config();
 
@@ -37,9 +38,9 @@ export const AppDataSource = new DataSource({
   database: "database.sqlite",
   synchronize: true,
   logging: true,
-  entities: ["src/entity/**/*.ts"],
-  migrations: ["src/migration/**/*.ts"],
-  subscribers: ["src/subscriber/**/*.ts"],
+  entities: [path.join(__dirname, 'entity', '**', '*.{ts,js}')],
+  migrations: [path.join(__dirname, 'migration', '**', '*.{ts,js}')],
+  subscribers: [path.join(__dirname, 'subscriber', '**', '*.{ts,js}')],
 });
 
 // Initialize database connection and start server

@@ -5,23 +5,59 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { mockPrompts } from "@/lib/mockData";
+import { api } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { Copy, Edit, Star, Calendar, User, TrendingUp, MessageSquare, History } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PromptDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const prompt = mockPrompts.find(p => p.id === id);
   const [newComment, setNewComment] = useState("");
 
-  if (!prompt) {
+  const { data: prompt, isLoading, isError } = useQuery({
+    queryKey: ["prompt", id],
+    queryFn: () => api.getPrompt(id!),
+    enabled: !!id,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-5xl mx-auto space-y-8">
+            <Skeleton className="h-12 w-3/4" />
+            <Skeleton className="h-6 w-1/2" />
+            <div className="flex gap-2">
+              <Skeleton className="h-8 w-20" />
+              <Skeleton className="h-8 w-20" />
+            </div>
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-8 w-1/4" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-40 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !prompt) {
     return (
       <div className="min-h-screen bg-gradient-subtle">
         <Navigation />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-4xl font-bold mb-4">Prompt Not Found</h1>
+          <p className="text-muted-foreground mb-8">
+            The prompt you are looking for does not exist or could not be loaded.
+          </p>
           <Link to="/browse">
             <Button>Back to Browse</Button>
           </Link>
