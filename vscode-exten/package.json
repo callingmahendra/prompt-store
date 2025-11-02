@@ -1,0 +1,147 @@
+{
+  "name": "prompt-library-extension",
+  "displayName": "Prompt Library",
+  "description": "Access and use prompts directly in VS Code",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:promptLibrary.showPrompts"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "promptLibrary.showPrompts",
+        "title": "Show Prompt Library",
+        "category": "Prompt Library"
+      },
+      {
+        "command": "promptLibrary.insertPrompt",
+        "title": "Insert Prompt",
+        "category": "Prompt Library"
+      },
+      {
+        "command": "promptLibrary.starPrompt",
+        "title": "Star Prompt",
+        "category": "Prompt Library",
+        "icon": "$(star-empty)"
+      },
+      {
+        "command": "promptLibrary.copyPrompt",
+        "title": "Copy Prompt",
+        "category": "Prompt Library",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "promptLibrary.refreshPrompts",
+        "title": "Refresh",
+        "category": "Prompt Library",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "promptLibrary.viewPrompt",
+        "title": "View Prompt Details",
+        "category": "Prompt Library",
+        "icon": "$(eye)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "promptLibrary.showPrompts",
+        "key": "ctrl+shift+p",
+        "mac": "cmd+shift+p"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "promptLibrary",
+          "name": "Prompt Library",
+          "when": "true"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "promptLibrary.refreshPrompts",
+          "when": "view == promptLibrary",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "promptLibrary.insertPrompt",
+          "when": "view == promptLibrary && viewItem == prompt",
+          "group": "inline"
+        },
+        {
+          "command": "promptLibrary.copyPrompt",
+          "when": "view == promptLibrary && viewItem == prompt",
+          "group": "inline"
+        },
+        {
+          "command": "promptLibrary.starPrompt",
+          "when": "view == promptLibrary && viewItem == prompt",
+          "group": "inline"
+        },
+        {
+          "command": "promptLibrary.viewPrompt",
+          "when": "view == promptLibrary && viewItem == prompt",
+          "group": "navigation"
+        }
+      ]
+    },
+    "views": {
+      "promptLibrary": [
+        {
+          "id": "promptLibrary",
+          "name": "Prompts",
+          "when": "true"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "promptLibrary",
+          "title": "Prompt Library",
+          "icon": "$(book)"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Prompt Library",
+      "properties": {
+        "promptLibrary.apiUrl": {
+          "type": "string",
+          "default": "http://localhost:3000/api/prompts",
+          "description": "URL of the prompt library API"
+        },
+        "promptLibrary.userId": {
+          "type": "string",
+          "default": "vscode-user",
+          "description": "User ID for starring prompts"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
