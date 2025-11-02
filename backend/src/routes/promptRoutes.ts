@@ -4,7 +4,7 @@ import { Prompt } from "../entity/Prompt";
 import { Comment } from "../entity/Comment";
 import { Version } from "../entity/Version";
 import { Star } from "../entity/Star";
-import { validatePromptInput, validateCommentInput, validateVersionInput } from "../middleware/validation";
+import { validatePromptInput, validatePromptUpdateInput, validateCommentInput, validateVersionInput } from "../middleware/validation";
 
 const router = Router();
 
@@ -52,7 +52,7 @@ router.post("/", validatePromptInput, async (req, res) => {
 });
 
 // Update a prompt
-router.put("/:id", async (req, res) => {
+router.put("/:id", validatePromptUpdateInput, async (req, res) => {
   try {
     const promptRepository = AppDataSource.getRepository(Prompt);
     const prompt = await promptRepository.findOneBy({ id: req.params.id });

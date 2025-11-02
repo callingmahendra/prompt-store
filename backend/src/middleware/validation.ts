@@ -28,6 +28,26 @@ export const validatePromptInput = (req: Request, res: Response, next: NextFunct
   return next();
 };
 
+export const validatePromptUpdateInput = (req: Request, res: Response, next: NextFunction) => {
+  const { title, description, content, tags } = req.body;
+
+  if (!title || !description || !content) {
+    return res.status(400).json({
+      error: 'Bad Request',
+      message: 'Missing required fields: title, description, and content are required'
+    });
+  }
+
+  if (tags && !Array.isArray(tags)) {
+    return res.status(400).json({
+      error: 'Bad Request',
+      message: 'Tags must be an array'
+    });
+  }
+
+  return next();
+};
+
 export const validateCommentInput = (req: Request, res: Response, next: NextFunction) => {
   const { content, author } = req.body;
 

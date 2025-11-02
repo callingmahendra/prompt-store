@@ -177,7 +177,7 @@ const PromptDetail = () => {
             </CardHeader>
             <CardContent>
               <div className="bg-muted p-6 rounded-lg font-mono text-sm whitespace-pre-wrap">
-                {prompt.content}
+                {prompt.content || 'No content available'}
               </div>
             </CardContent>
           </Card>
@@ -203,26 +203,35 @@ const PromptDetail = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {prompt.versions.map((version, index) => (
-                  <div
-                    key={version.id}
-                    className="flex items-center justify-between p-3 bg-muted rounded-lg"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Version {prompt.versions.length - index}</span>
-                        {index === 0 && (
-                          <Badge variant="default">Current</Badge>
-                        )}
+                {(prompt.versions || []).length > 0 ? (
+                  // Sort versions by date (newest first) for proper version numbering
+                  [...prompt.versions]
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                    .map((version, index) => (
+                      <div
+                        key={version.id}
+                        className="flex items-center justify-between p-3 bg-muted rounded-lg"
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">Version {prompt.versions.length - index}</span>
+                            {index === 0 && (
+                              <Badge variant="default">Current</Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">{version.changes}</p>
+                        </div>
+                        <div className="text-sm text-muted-foreground text-right">
+                          <p>{version.author}</p>
+                          <p>{new Date(version.date).toLocaleDateString()}</p>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">{version.changes}</p>
-                    </div>
-                    <div className="text-sm text-muted-foreground text-right">
-                      <p>{version.author}</p>
-                      <p>{version.date}</p>
-                    </div>
+                    ))
+                ) : (
+                  <div className="p-3 bg-muted rounded-lg text-center text-muted-foreground">
+                    No version history available
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>

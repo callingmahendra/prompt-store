@@ -1,4 +1,4 @@
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 class APIError extends Error {
   constructor(public status: number, message: string) {
@@ -13,11 +13,7 @@ const handleError = (error: any) => {
     ? error.message 
     : 'An unexpected error occurred';
   
-  toast({
-    variant: "destructive",
-    title: "Error",
-    description: message,
-  });
+  toast.error(message);
 
   throw error;
 };

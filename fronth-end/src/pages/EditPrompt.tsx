@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
@@ -7,28 +7,68 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { mockPrompts, popularTags } from "@/lib/mockData";
+import { Skeleton } from "@/components/ui/skeleton";
+import { popularTags } from "@/lib/mockData";
+import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { Plus, X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 const EditPrompt = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const prompt = mockPrompts.find(p => p.id === id);
+  
+  const { data: prompt, isLoading, isError } = useQuery({
+    queryKey: ["prompt", id],
+    queryFn: () => api.getPrompt(id!),
+    enabled: !!id,
+  });
 
-  const [title, setTitle] = useState(prompt?.title || "");
-  const [description, setDescription] = useState(prompt?.description || "");
-  const [content, setContent] = useState(prompt?.content || "");
-  const [selectedTags, setSelectedTags] = useState<string[]>(prompt?.tags || []);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [content, setContent] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState("");
   const [changeNotes, setChangeNotes] = useState("");
 
-  if (!prompt) {
+  // Update form fields when prompt data is loaded
+  useEffect(() => {
+    if (prompt) {
+      setTitle(prompt.title || "");
+      setDescription(prompt.description || "");
+      setContent(prompt.content || "");
+      setSelectedTags(prompt.tags || []);
+    }
+  }, [prompt]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle">
+        <Navigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <Skeleton className="h-12 w-3/4" />
+            <Skeleton className="h-6 w-1/2" />
+            <div className="space-y-4">
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !prompt) {
     return (
       <div className="min-h-screen bg-gradient-subtle">
         <Navigation />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-4xl font-bold mb-4">Prompt Not Found</h1>
+          <p className="text-muted-foreground mb-8">
+            The prompt you are trying to edit does not exist or could not be loaded.
+          </p>
           <Link to="/browse">
             <Button>Back to Browse</Button>
           </Link>
@@ -54,7 +94,7 @@ const EditPrompt = () => {
     setSelectedTags(prev => prev.filter(t => t !== tag));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!title.trim() || !description.trim() || !content.trim()) {
@@ -72,8 +112,28 @@ const EditPrompt = () => {
       return;
     }
 
-    toast.success("Prompt updated successfully!");
-    navigate(`/prompt/${id}`);
+    try {
+      // Update the prompt
+      await api.updatePrompt(id!, {
+        title: title.trim(),
+        description: description.trim(),
+        content: content.trim(),
+        tags: selectedTags,
+      });
+
+      // Add version entry
+      await api.addVersion(id!, {
+        author: prompt.author, // In a real app, this would be the current user
+        changes: changeNotes.trim(),
+        date: new Date().toISOString(),
+      });
+
+      toast.success("Prompt updated successfully!");
+      navigate(`/prompt/${id}`);
+    } catch (error) {
+      console.error('Failed to update prompt:', error);
+      toast.error("Failed to update prompt. Please try again.");
+    }
   };
 
   return (

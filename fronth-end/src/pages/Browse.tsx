@@ -61,7 +61,7 @@ const Browse = () => {
   const filteredPrompts = useMemo(() => {
     let filtered = prompts;
 
-    if (searchQuery) {
+    if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         prompt =>
@@ -83,9 +83,9 @@ const Browse = () => {
         case "date":
           return new Date(b.date).getTime() - new Date(a.date).getTime();
         case "rating":
-          return b.rating - a.rating;
+          return (b.rating || 0) - (a.rating || 0);
         case "usage":
-          return b.usageCount - a.usageCount;
+          return (b.usageCount || 0) - (a.usageCount || 0);
         default:
           return 0;
       }
@@ -175,11 +175,11 @@ const Browse = () => {
                     id={prompt.id}
                     title={prompt.title}
                     description={prompt.description}
-                    tags={prompt.tags}
-                    rating={prompt.rating}
+                    tags={prompt.tags || []}
+                    rating={prompt.rating || 0}
                     author={prompt.author}
                     date={new Date(prompt.date).toLocaleDateString()}
-                    usageCount={prompt.usageCount}
+                    usageCount={prompt.usageCount || 0}
                     stars={prompt.stars || []}
                     comments={prompt.comments || []}
                   />

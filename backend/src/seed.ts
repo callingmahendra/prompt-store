@@ -3,13 +3,14 @@ import { DataSource } from "typeorm";
 import { Prompt } from "./entity/Prompt";
 import { Comment } from "./entity/Comment";
 import { Version } from "./entity/Version";
+import { Star } from "./entity/Star";
 
 const AppDataSource = new DataSource({
   type: "sqlite",
   database: "database.sqlite",
   synchronize: true,
   logging: true,
-  entities: [Prompt, Comment, Version]
+  entities: [Prompt, Comment, Version, Star]
 });
 
 const mockPrompts = [
@@ -74,16 +75,33 @@ const seedDatabase = async () => {
     }
 
     const promptRepository = AppDataSource.getRepository(Prompt);
+    const commentRepository = AppDataSource.getRepository(Comment);
+    const versionRepository = AppDataSource.getRepository(Version);
+    const starRepository = AppDataSource.getRepository(Star);
     
-    // Clear existing data
+    // Clear existing data in correct order (child tables first)
+    await commentRepository.clear();
+    await versionRepository.clear();
+    await starRepository.clear();
     await promptRepository.clear();
-    console.log("Cleared existing prompts");
+    console.log("Cleared existing data");
 
     // Insert mock prompts
+    
     for (const prompt of mockPrompts) {
       const entity = promptRepository.create(prompt);
-      await promptRepository.save(entity);
+      const savedPrompt = await promptRepository.save(entity);
       console.log(`Created prompt: ${prompt.title}`);
+      
+      // Add initial version for each prompt
+      const version = versionRepository.create({
+        author: prompt.author,
+        date: prompt.date,
+        changes: "Initial version",
+        prompt: savedPrompt
+      });
+      await versionRepository.save(version);
+      console.log(`Created initial version for: ${prompt.title}`);
     }
     
     console.log("Successfully seeded database with mock prompts");
