@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import { PromptProvider } from './promptProvider';
 import { PromptService } from './promptService';
 import { PromptWebviewProvider } from './promptWebview';
+import { ChatIntegration } from './chatIntegration';
+import { SearchIntegration } from './searchIntegration';
 
 export function activate(context: vscode.ExtensionContext) {
     const promptService = new PromptService();
@@ -13,27 +15,10 @@ export function activate(context: vscode.ExtensionContext) {
     // Register commands
     const showPromptsCommand = vscode.commands.registerCommand('promptLibrary.showPrompts', async () => {
         const prompts = await promptService.getPrompts();
-        const items = prompts.map(prompt => ({
-            label: prompt.title,
-            description: prompt.description,
-            detail: `Tags: ${prompt.tags.join(', ')} | Author: ${prompt.author}`,
-            prompt: prompt
-        }));
-
-        const selected = await vscode.window.showQuickPick(items, {
-            placeHolder: 'Select a prompt to insert',
-            matchOnDescription: true,
-            matchOnDetail: true
-        });
-
-        if (selected) {
-            insertPromptToEditor(selected.prompt.content);
-        }
+        await ChatIntegration.showPromptQuickPick(prompts);
     });
 
-    const insertPromptCommand = vscode.commands.registerCommand('promptLibrary.insertPrompt', (prompt: any) => {
-        insertPromptToEditor(prompt.content);
-    });
+
 
     const starPromptCommand = vscode.commands.registerCommand('promptLibrary.starPrompt', async (promptItem: any) => {
         const starred = await promptService.starPrompt(promptItem.prompt.id);
@@ -55,27 +40,28 @@ export function activate(context: vscode.ExtensionContext) {
         PromptWebviewProvider.createOrShow(context.extensionUri, promptItem.prompt);
     });
 
+    const sendToChatCommand = vscode.commands.registerCommand('promptLibrary.sendToChat', async (promptItem: any) => {
+        await ChatIntegration.sendPromptToChat(promptItem.prompt);
+    });
+
+    const searchPromptsCommand = vscode.commands.registerCommand('promptLibrary.searchPrompts', async () => {
+        await SearchIntegration.showSearchInterface(promptService, context.extensionUri);
+    });
+
+    // Note: Advanced chat integrations (variables, participants) require newer VSCode API
+    // They will be available when VSCode updates its chat API to stable
+
     context.subscriptions.push(
         showPromptsCommand, 
-        insertPromptCommand, 
         starPromptCommand, 
         copyPromptCommand, 
         refreshPromptsCommand,
-        viewPromptCommand
+        viewPromptCommand,
+        sendToChatCommand,
+        searchPromptsCommand
     );
 }
 
-function insertPromptToEditor(content: string) {
-    const editor = vscode.window.activeTextEditor;
-    if (editor) {
-        const position = editor.selection.active;
-        editor.edit(editBuilder => {
-            editBuilder.insert(position, content);
-        });
-        vscode.window.showInformationMessage('Prompt inserted successfully!');
-    } else {
-        vscode.window.showErrorMessage('No active editor found');
-    }
-}
+
 
 export function deactivate() {}

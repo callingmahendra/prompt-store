@@ -61,4 +61,85 @@ export class PromptService {
             return false;
         }
     }
+
+    /**
+     * Search prompts by various criteria
+     */
+    async searchPrompts(query: string, searchBy: 'title' | 'tags' | 'content' | 'author' | 'all' = 'all'): Promise<Prompt[]> {
+        try {
+            const allPrompts = await this.getPrompts();
+            const searchTerm = query.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                return allPrompts;
+            }
+
+            return allPrompts.filter(prompt => {
+                switch (searchBy) {
+                    case 'title':
+                        return prompt.title.toLowerCase().includes(searchTerm);
+                    case 'tags':
+                        return prompt.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                    case 'content':
+                        return prompt.content.toLowerCase().includes(searchTerm);
+                    case 'author':
+                        return prompt.author.toLowerCase().includes(searchTerm);
+                    case 'all':
+                    default:
+                        return (
+                            prompt.title.toLowerCase().includes(searchTerm) ||
+                            prompt.description.toLowerCase().includes(searchTerm) ||
+                            prompt.content.toLowerCase().includes(searchTerm) ||
+                            prompt.author.toLowerCase().includes(searchTerm) ||
+                            prompt.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+                        );
+                }
+            });
+        } catch (error) {
+            console.error('Failed to search prompts:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Get prompts by specific tag
+     */
+    async getPromptsByTag(tag: string): Promise<Prompt[]> {
+        return this.searchPrompts(tag, 'tags');
+    }
+
+    /**
+     * Get prompts by author
+     */
+    async getPromptsByAuthor(author: string): Promise<Prompt[]> {
+        return this.searchPrompts(author, 'author');
+    }
+
+    /**
+     * Get all unique tags from prompts
+     */
+    async getAllTags(): Promise<string[]> {
+        try {
+            const prompts = await this.getPrompts();
+            const allTags = prompts.flatMap(prompt => prompt.tags);
+            return [...new Set(allTags)].sort();
+        } catch (error) {
+            console.error('Failed to get tags:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Get all unique authors from prompts
+     */
+    async getAllAuthors(): Promise<string[]> {
+        try {
+            const prompts = await this.getPrompts();
+            const allAuthors = prompts.map(prompt => prompt.author);
+            return [...new Set(allAuthors)].sort();
+        } catch (error) {
+            console.error('Failed to get authors:', error);
+            return [];
+        }
+    }
 }

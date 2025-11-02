@@ -25,9 +25,9 @@ export class PromptProvider implements vscode.TreeDataProvider<PromptItem> {
                 vscode.TreeItemCollapsibleState.None,
                 prompt,
                 {
-                    command: 'promptLibrary.insertPrompt',
-                    title: 'Insert Prompt',
-                    arguments: [prompt]
+                    command: 'promptLibrary.viewPrompt',
+                    title: 'View Prompt Details',
+                    arguments: [{ prompt }]
                 }
             ));
         }

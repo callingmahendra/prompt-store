@@ -39,8 +39,11 @@ export class PromptWebviewProvider {
         this._panel.webview.onDidReceiveMessage(
             message => {
                 switch (message.command) {
-                    case 'insertPrompt':
-                        this._insertPrompt(message.content);
+                    case 'sendToChat':
+                        // Import ChatIntegration dynamically to avoid circular dependency
+                        import('./chatIntegration').then(({ ChatIntegration }) => {
+                            ChatIntegration.sendPromptToChat(message.prompt);
+                        });
                         return;
                     case 'copyPrompt':
                         vscode.env.clipboard.writeText(message.content);
@@ -53,18 +56,7 @@ export class PromptWebviewProvider {
         );
     }
 
-    private _insertPrompt(content: string) {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            const position = editor.selection.active;
-            editor.edit(editBuilder => {
-                editBuilder.insert(position, content);
-            });
-            vscode.window.showInformationMessage('Prompt inserted successfully!');
-        } else {
-            vscode.window.showErrorMessage('No active editor found');
-        }
-    }
+
 
     public dispose() {
         PromptWebviewProvider.currentPanel = undefined;
@@ -177,17 +169,17 @@ export class PromptWebviewProvider {
     <div class="content">${prompt.content}</div>
     
     <div class="actions">
-        <button onclick="insertPrompt()">Insert into Editor</button>
-        <button class="secondary" onclick="copyPrompt()">Copy to Clipboard</button>
+        <button onclick="sendToChat()">💬 Send to Chat</button>
+        <button class="secondary" onclick="copyPrompt()">📋 Copy to Clipboard</button>
     </div>
 
     <script>
         const vscode = acquireVsCodeApi();
         
-        function insertPrompt() {
+        function sendToChat() {
             vscode.postMessage({
-                command: 'insertPrompt',
-                content: ${JSON.stringify(prompt.content)}
+                command: 'sendToChat',
+                prompt: ${JSON.stringify(prompt)}
             });
         }
         

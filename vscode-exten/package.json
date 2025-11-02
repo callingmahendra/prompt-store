@@ -4,7 +4,7 @@
   "description": "Access and use prompts directly in VS Code",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.74.0"
+    "vscode": "^1.90.0"
   },
   "categories": [
     "Other"
@@ -20,11 +20,7 @@
         "title": "Show Prompt Library",
         "category": "Prompt Library"
       },
-      {
-        "command": "promptLibrary.insertPrompt",
-        "title": "Insert Prompt",
-        "category": "Prompt Library"
-      },
+
       {
         "command": "promptLibrary.starPrompt",
         "title": "Star Prompt",
@@ -48,6 +44,18 @@
         "title": "View Prompt Details",
         "category": "Prompt Library",
         "icon": "$(eye)"
+      },
+      {
+        "command": "promptLibrary.sendToChat",
+        "title": "Send to Chat",
+        "category": "Prompt Library",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "promptLibrary.searchPrompts",
+        "title": "Search Prompts",
+        "category": "Prompt Library",
+        "icon": "$(search)"
       }
     ],
     "keybindings": [
@@ -55,6 +63,18 @@
         "command": "promptLibrary.showPrompts",
         "key": "ctrl+shift+p",
         "mac": "cmd+shift+p"
+      },
+      {
+        "command": "promptLibrary.showPrompts",
+        "key": "ctrl+alt+p",
+        "mac": "cmd+alt+p",
+        "when": "!inChat"
+      },
+      {
+        "command": "promptLibrary.searchPrompts",
+        "key": "ctrl+shift+f",
+        "mac": "cmd+shift+f",
+        "when": "!inChat"
       }
     ],
     "views": {
@@ -69,17 +89,18 @@
     "menus": {
       "view/title": [
         {
+          "command": "promptLibrary.searchPrompts",
+          "when": "view == promptLibrary",
+          "group": "navigation"
+        },
+        {
           "command": "promptLibrary.refreshPrompts",
           "when": "view == promptLibrary",
           "group": "navigation"
         }
       ],
       "view/item/context": [
-        {
-          "command": "promptLibrary.insertPrompt",
-          "when": "view == promptLibrary && viewItem == prompt",
-          "group": "inline"
-        },
+
         {
           "command": "promptLibrary.copyPrompt",
           "when": "view == promptLibrary && viewItem == prompt",
@@ -94,6 +115,11 @@
           "command": "promptLibrary.viewPrompt",
           "when": "view == promptLibrary && viewItem == prompt",
           "group": "navigation"
+        },
+        {
+          "command": "promptLibrary.sendToChat",
+          "when": "view == promptLibrary && viewItem == prompt",
+          "group": "inline"
         }
       ]
     },
@@ -137,7 +163,7 @@
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
-    "@types/vscode": "^1.74.0",
+    "@types/vscode": "^1.90.0",
     "@types/node": "16.x",
     "typescript": "^4.9.4"
   },
