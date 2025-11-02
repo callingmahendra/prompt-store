@@ -14,9 +14,11 @@ const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [selectedTags, setSelectedTags] = useState<string[]>(
-    searchParams.get("tag") ? [searchParams.get("tag")!] : []
+    searchParams.get("tags") ? searchParams.get("tags")!.split(",") : []
   );
-  const [sortBy, setSortBy] = useState<"date" | "rating" | "usage">("rating");
+  const [sortBy, setSortBy] = useState<"date" | "rating" | "usage">(
+    (searchParams.get("sort") as "date" | "rating" | "usage") || "rating"
+  );
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [popularTags, setPopularTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,10 +52,32 @@ const Browse = () => {
 
   useEffect(() => {
     const q = searchParams.get("q");
-    const tag = searchParams.get("tag");
-    if (q) setSearchQuery(q);
-    if (tag && !selectedTags.includes(tag)) setSelectedTags([tag]);
+    const tags = searchParams.get("tags");
+    const sort = searchParams.get("sort");
+    
+    if (q !== null) setSearchQuery(q);
+    if (tags) setSelectedTags(tags.split(","));
+    if (sort) setSortBy(sort as "date" | "rating" | "usage");
   }, [searchParams]);
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (searchQuery.trim()) {
+      params.set("q", searchQuery);
+    }
+    
+    if (selectedTags.length > 0) {
+      params.set("tags", selectedTags.join(","));
+    }
+    
+    if (sortBy !== "rating") {
+      params.set("sort", sortBy);
+    }
+    
+    setSearchParams(params, { replace: true });
+  }, [searchQuery, selectedTags, sortBy, setSearchParams]);
 
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>
@@ -64,7 +88,7 @@ const Browse = () => {
   const clearFilters = () => {
     setSearchQuery("");
     setSelectedTags([]);
-    setSearchParams({});
+    setSortBy("rating");
   };
 
   const filteredPrompts = useMemo(() => {
@@ -189,7 +213,7 @@ const Browse = () => {
                     author={prompt.author}
                     date={new Date(prompt.date).toLocaleDateString()}
                     usageCount={prompt.usageCount || 0}
-                    stars={prompt.stars || []}
+                    stars={[]}
                     comments={prompt.comments || []}
                   />
                 ))}

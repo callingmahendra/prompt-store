@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, Copy, Calendar, User, MessageCircle } from "lucide-react";
@@ -21,6 +21,7 @@ interface PromptCardProps {
 }
 
 const PromptCard = ({ id, title, description, tags, rating, author, date, usageCount, stars = [], comments = [] }: PromptCardProps) => {
+  const location = useLocation();
   const [isStarred, setIsStarred] = useState(false);
   const [starCount, setStarCount] = useState(stars.length);
   const userId = "user-123"; // This should come from auth context
@@ -65,7 +66,7 @@ const PromptCard = ({ id, title, description, tags, rating, author, date, usageC
   };
 
   return (
-    <Link to={`/prompt/${id}`}>
+    <Link to={`/prompt/${id}${location.search}`}>
       <Card className="group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer border-border bg-card h-full">
         <CardHeader>
           <div className="flex items-start justify-between gap-2">

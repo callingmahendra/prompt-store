@@ -1,12 +1,12 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { Copy, Edit, Star, Calendar, User, TrendingUp, History } from "lucide-react";
+import { Copy, Edit, Star, Calendar, User, TrendingUp, History, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,6 +15,7 @@ import Comments from "@/components/Comments";
 const PromptDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isStarred, setIsStarred] = useState(false);
   const [starCount, setStarCount] = useState(0);
   const [comments, setComments] = useState([]);
@@ -79,7 +80,7 @@ const PromptDetail = () => {
           <p className="text-muted-foreground mb-8">
             The prompt you are looking for does not exist or could not be loaded.
           </p>
-          <Link to="/browse">
+          <Link to={`/browse${location.search}`}>
             <Button>Back to Browse</Button>
           </Link>
         </div>
@@ -118,12 +119,27 @@ const PromptDetail = () => {
     setComments(prev => [...prev, newComment]);
   };
 
+  const handleBack = () => {
+    // Navigate back to browse page with preserved search parameters
+    navigate(`/browse${location.search}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Navigation />
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto space-y-8">
+          {/* Back Button */}
+          <Button 
+            onClick={handleBack} 
+            variant="ghost" 
+            className="gap-2 -ml-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Browse
+          </Button>
+
           {/* Header */}
           <div className="space-y-4">
             <div className="flex items-start justify-between gap-4">
@@ -148,7 +164,7 @@ const PromptDetail = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {prompt.tags.map(tag => (
+              {prompt.tags.map((tag: string) => (
                 <Badge key={tag} variant="secondary">
                   {tag}
                 </Badge>
