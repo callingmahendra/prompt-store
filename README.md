@@ -1,6 +1,6 @@
-# Prompt Store
+# Axiom Prompts
 
-Prompt Store is a full-stack application designed for managing and sharing prompts. It provides a user-friendly interface to browse, create, edit, and manage prompts, with a robust backend to handle data storage and API requests.
+Axiom Prompts is a full-stack application designed for managing and sharing prompts. It provides a user-friendly interface to browse, create, edit, and manage prompts, with a robust backend to handle data storage and API requests.
 
 ## Getting Started
 

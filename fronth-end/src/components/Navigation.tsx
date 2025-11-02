@@ -21,7 +21,7 @@ const Navigation = () => {
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-bold text-gradient">
-                Prompt Store
+                Axiom Prompts
               </span>
               <span className="text-xs text-muted-foreground -mt-1">
                 Enterprise AI Hub

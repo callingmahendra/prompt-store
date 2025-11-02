@@ -1,6 +1,6 @@
-# Contributing to Prompt Store
+# Contributing to Axiom Prompts
 
-First off, thank you for considering contributing to Prompt Store! It's people like you that make Prompt Store such a great tool.
+First off, thank you for considering contributing to Axiom Prompts! It's people like you that make Axiom Prompts such a great tool.
 
 ## Where do I start?
 
