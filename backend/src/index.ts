@@ -4,6 +4,7 @@ import cors from "cors";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 import promptRoutes from "./routes/promptRoutes";
+import statsRoutes from "./routes/statsRoutes";
 import { errorHandler } from "./middleware/validation";
 import path from "path";
 
@@ -16,6 +17,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:8080',
+    'http://localhost:8081',
     process.env.FRONTEND_URL
   ].filter(Boolean) as string[],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -26,6 +28,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/prompts", promptRoutes);
+app.use("/api/stats", statsRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

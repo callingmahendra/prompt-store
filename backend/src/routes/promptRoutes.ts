@@ -9,15 +9,53 @@ import { validatePromptInput, validatePromptUpdateInput, validateCommentInput, v
 const router = Router();
 
 
-// Get all prompts
-router.get("/", async (_req, res) => {
+// Get all prompts with pagination
+router.get("/", async (req, res) => {
   try {
+    console.log("Fetching prompts with query:", req.query);
+    const { page = 1, limit = 10, q, tag } = req.query;
     const promptRepository = AppDataSource.getRepository(Prompt);
-    const prompts = await promptRepository.find({
-      relations: ["comments", "versions", "stars"],
+    
+    let queryBuilder = promptRepository.createQueryBuilder("prompt")
+      .leftJoinAndSelect("prompt.comments", "comments")
+      .leftJoinAndSelect("prompt.versions", "versions")
+      .leftJoinAndSelect("prompt.stars", "stars");
+
+    // Add search filters if provided
+    if (q && typeof q === 'string') {
+      queryBuilder = queryBuilder.where(
+        "prompt.title LIKE :search OR prompt.description LIKE :search OR prompt.content LIKE :search",
+        { search: `%${q}%` }
+      );
+    }
+
+    if (tag && typeof tag === 'string') {
+      queryBuilder = queryBuilder.andWhere("prompt.tags LIKE :tag", { tag: `%${tag}%` });
+    }
+
+    // Add pagination
+    const pageNum = Math.max(1, Number(page));
+    const limitNum = Math.min(1000, Math.max(1, Number(limit))); // Max 1000 items per page
+    const skip = (pageNum - 1) * limitNum;
+
+    queryBuilder = queryBuilder
+      .skip(skip)
+      .take(limitNum)
+      .orderBy("prompt.date", "DESC");
+
+    console.log("Executing query...");
+    const [prompts, total] = await queryBuilder.getManyAndCount();
+    console.log(`Found ${total} prompts, returning ${prompts.length}`);
+
+    return res.json({
+      prompts,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum)
     });
-    return res.json(prompts);
   } catch (error) {
+    console.error("Error fetching prompts:", error);
     return res.status(500).json({ error: "Error fetching prompts" });
   }
 });

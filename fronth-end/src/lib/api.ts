@@ -26,11 +26,12 @@ export const api = {
   // Prompts
   getAllPrompts: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/prompts`);
+      const response = await fetch(`${API_BASE_URL}/prompts?limit=1000`);
       if (!response.ok) {
         throw new APIError(response.status, 'Failed to fetch prompts');
       }
-      return response.json();
+      const data = await response.json();
+      return data.prompts || [];
     } catch (error) {
       return handleError(error);
     }
@@ -208,6 +209,38 @@ export const api = {
       const response = await fetch(`${API_BASE_URL}/prompts/tags/popular?limit=${limit}`);
       if (!response.ok) {
         throw new APIError(response.status, 'Failed to fetch popular tags');
+      }
+      return response.json();
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  // Get prompts with pagination
+  getPrompts: async (options: { page?: number; limit?: number; query?: string; tag?: string } = {}) => {
+    try {
+      const params = new URLSearchParams();
+      if (options.page) params.append('page', options.page.toString());
+      if (options.limit) params.append('limit', options.limit.toString());
+      if (options.query) params.append('q', options.query);
+      if (options.tag) params.append('tag', options.tag);
+      
+      const response = await fetch(`${API_BASE_URL}/prompts?${params.toString()}`);
+      if (!response.ok) {
+        throw new APIError(response.status, 'Failed to fetch prompts');
+      }
+      return response.json();
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  // Get stats
+  getStats: async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/stats`);
+      if (!response.ok) {
+        throw new APIError(response.status, 'Failed to fetch stats');
       }
       return response.json();
     } catch (error) {
