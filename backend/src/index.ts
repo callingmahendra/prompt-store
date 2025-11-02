@@ -17,6 +17,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:8080',
+    'http://localhost:8081',
     process.env.FRONTEND_URL
   ].filter(Boolean) as string[],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

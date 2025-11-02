@@ -12,6 +12,7 @@ const router = Router();
 // Get all prompts with pagination
 router.get("/", async (req, res) => {
   try {
+    console.log("Fetching prompts with query:", req.query);
     const { page = 1, limit = 10, q, tag } = req.query;
     const promptRepository = AppDataSource.getRepository(Prompt);
     
@@ -34,15 +35,17 @@ router.get("/", async (req, res) => {
 
     // Add pagination
     const pageNum = Math.max(1, Number(page));
-    const limitNum = Math.min(100, Math.max(1, Number(limit))); // Max 100 items per page
+    const limitNum = Math.min(1000, Math.max(1, Number(limit))); // Max 1000 items per page
     const skip = (pageNum - 1) * limitNum;
 
     queryBuilder = queryBuilder
       .skip(skip)
       .take(limitNum)
-      .orderBy("prompt.createdAt", "DESC");
+      .orderBy("prompt.date", "DESC");
 
+    console.log("Executing query...");
     const [prompts, total] = await queryBuilder.getManyAndCount();
+    console.log(`Found ${total} prompts, returning ${prompts.length}`);
 
     return res.json({
       prompts,
@@ -52,6 +55,7 @@ router.get("/", async (req, res) => {
       totalPages: Math.ceil(total / limitNum)
     });
   } catch (error) {
+    console.error("Error fetching prompts:", error);
     return res.status(500).json({ error: "Error fetching prompts" });
   }
 });

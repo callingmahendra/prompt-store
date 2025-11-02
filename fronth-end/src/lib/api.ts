@@ -26,11 +26,12 @@ export const api = {
   // Prompts
   getAllPrompts: async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/prompts`);
+      const response = await fetch(`${API_BASE_URL}/prompts?limit=1000`);
       if (!response.ok) {
         throw new APIError(response.status, 'Failed to fetch prompts');
       }
-      return response.json();
+      const data = await response.json();
+      return data.prompts || [];
     } catch (error) {
       return handleError(error);
     }
