@@ -1,8 +1,8 @@
 {
-  "name": "prompt-library-extension",
-  "displayName": "Prompt Library",
-  "description": "Access and use prompts directly in VS Code",
-  "version": "0.0.1",
+  "name": "axiom-prompts",
+  "displayName": "Axiom Prompts",
+  "description": "Comprehensive prompt management with advanced search, analytics, and chat integration",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -17,45 +17,86 @@
     "commands": [
       {
         "command": "promptLibrary.showPrompts",
-        "title": "Show Prompt Library",
-        "category": "Prompt Library"
+        "title": "Show Axiom Prompts",
+        "category": "Axiom Prompts"
       },
-
+      {
+        "command": "promptLibrary.showOverview",
+        "title": "Show Overview Dashboard",
+        "category": "Axiom Prompts",
+        "icon": "$(dashboard)"
+      },
+      {
+        "command": "promptLibrary.showSettings",
+        "title": "Open Settings",
+        "category": "Axiom Prompts",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "promptLibrary.changeViewMode",
+        "title": "Change View Mode",
+        "category": "Axiom Prompts",
+        "icon": "$(list-tree)"
+      },
       {
         "command": "promptLibrary.starPrompt",
         "title": "Star Prompt",
-        "category": "Prompt Library",
+        "category": "Axiom Prompts",
         "icon": "$(star-empty)"
       },
       {
         "command": "promptLibrary.copyPrompt",
         "title": "Copy Prompt",
-        "category": "Prompt Library",
+        "category": "Axiom Prompts",
         "icon": "$(copy)"
       },
       {
         "command": "promptLibrary.refreshPrompts",
         "title": "Refresh",
-        "category": "Prompt Library",
+        "category": "Axiom Prompts",
         "icon": "$(refresh)"
       },
       {
         "command": "promptLibrary.viewPrompt",
         "title": "View Prompt Details",
-        "category": "Prompt Library",
+        "category": "Axiom Prompts",
         "icon": "$(eye)"
       },
       {
         "command": "promptLibrary.sendToChat",
         "title": "Send to Chat",
-        "category": "Prompt Library",
+        "category": "Axiom Prompts",
         "icon": "$(comment-discussion)"
       },
       {
         "command": "promptLibrary.searchPrompts",
         "title": "Search Prompts",
-        "category": "Prompt Library",
+        "category": "Axiom Prompts",
         "icon": "$(search)"
+      },
+      {
+        "command": "promptLibrary.quickSearch",
+        "title": "Quick Search",
+        "category": "Axiom Prompts",
+        "icon": "$(search-fuzzy)"
+      },
+      {
+        "command": "promptLibrary.browseByTag",
+        "title": "Browse by Tag",
+        "category": "Axiom Prompts",
+        "icon": "$(tag)"
+      },
+      {
+        "command": "promptLibrary.browseByAuthor",
+        "title": "Browse by Author",
+        "category": "Axiom Prompts",
+        "icon": "$(person)"
+      },
+      {
+        "command": "promptLibrary.showAnalytics",
+        "title": "Show Analytics",
+        "category": "Axiom Prompts",
+        "icon": "$(graph)"
       }
     ],
     "keybindings": [
@@ -75,13 +116,24 @@
         "key": "ctrl+shift+f",
         "mac": "cmd+shift+f",
         "when": "!inChat"
+      },
+      {
+        "command": "promptLibrary.quickSearch",
+        "key": "ctrl+alt+f",
+        "mac": "cmd+alt+f",
+        "when": "!inChat"
+      },
+      {
+        "command": "promptLibrary.showOverview",
+        "key": "ctrl+alt+o",
+        "mac": "cmd+alt+o"
       }
     ],
     "views": {
       "explorer": [
         {
           "id": "promptLibrary",
-          "name": "Prompt Library",
+          "name": "Axiom Prompts",
           "when": "true"
         }
       ]
@@ -89,37 +141,82 @@
     "menus": {
       "view/title": [
         {
+          "command": "promptLibrary.showOverview",
+          "when": "view == promptLibrary",
+          "group": "navigation@1"
+        },
+        {
+          "command": "promptLibrary.changeViewMode",
+          "when": "view == promptLibrary",
+          "group": "navigation@2"
+        },
+        {
           "command": "promptLibrary.searchPrompts",
           "when": "view == promptLibrary",
-          "group": "navigation"
+          "group": "navigation@3"
         },
         {
           "command": "promptLibrary.refreshPrompts",
           "when": "view == promptLibrary",
-          "group": "navigation"
+          "group": "navigation@4"
+        },
+        {
+          "command": "promptLibrary.showSettings",
+          "when": "view == promptLibrary",
+          "group": "navigation@5"
+        },
+        {
+          "command": "promptLibrary.showAnalytics",
+          "when": "view == promptLibrary",
+          "group": "navigation@6"
         }
       ],
       "view/item/context": [
-
         {
           "command": "promptLibrary.copyPrompt",
           "when": "view == promptLibrary && viewItem == prompt",
-          "group": "inline"
+          "group": "inline@1"
         },
         {
           "command": "promptLibrary.starPrompt",
           "when": "view == promptLibrary && viewItem == prompt",
-          "group": "inline"
-        },
-        {
-          "command": "promptLibrary.viewPrompt",
-          "when": "view == promptLibrary && viewItem == prompt",
-          "group": "navigation"
+          "group": "inline@2"
         },
         {
           "command": "promptLibrary.sendToChat",
           "when": "view == promptLibrary && viewItem == prompt",
-          "group": "inline"
+          "group": "inline@3"
+        },
+        {
+          "command": "promptLibrary.viewPrompt",
+          "when": "view == promptLibrary && viewItem == prompt",
+          "group": "navigation@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "promptLibrary.showPrompts",
+          "when": "true"
+        },
+        {
+          "command": "promptLibrary.showOverview",
+          "when": "true"
+        },
+        {
+          "command": "promptLibrary.searchPrompts",
+          "when": "true"
+        },
+        {
+          "command": "promptLibrary.quickSearch",
+          "when": "true"
+        },
+        {
+          "command": "promptLibrary.browseByTag",
+          "when": "true"
+        },
+        {
+          "command": "promptLibrary.browseByAuthor",
+          "when": "true"
         }
       ]
     },
@@ -136,13 +233,13 @@
       "activitybar": [
         {
           "id": "promptLibrary",
-          "title": "Prompt Library",
+          "title": "Axiom Prompts",
           "icon": "$(book)"
         }
       ]
     },
     "configuration": {
-      "title": "Prompt Library",
+      "title": "Axiom Prompts",
       "properties": {
         "promptLibrary.apiUrl": {
           "type": "string",
@@ -153,6 +250,31 @@
           "type": "string",
           "default": "vscode-user",
           "description": "User ID for starring prompts"
+        },
+        "promptLibrary.defaultViewMode": {
+          "type": "string",
+          "enum": ["categories", "flat", "authors", "recent"],
+          "default": "categories",
+          "description": "Default view mode for the prompt library tree"
+        },
+        "promptLibrary.itemsPerPage": {
+          "type": "number",
+          "default": 50,
+          "minimum": 10,
+          "maximum": 500,
+          "description": "Number of prompts to load at once"
+        },
+        "promptLibrary.cacheDuration": {
+          "type": "number",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 60,
+          "description": "Cache duration in minutes"
+        },
+        "promptLibrary.autoRefresh": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically refresh prompts when the extension starts"
         }
       }
     }
