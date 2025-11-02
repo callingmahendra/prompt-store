@@ -142,4 +142,17 @@ export class PromptService {
             return [];
         }
     }
+
+    /**
+     * Track prompt usage (increment usage count)
+     */
+    async trackUsage(id: string): Promise<boolean> {
+        try {
+            const response = await axios.post(`${this.baseUrl}/${id}/use`);
+            return response.data.success;
+        } catch (error) {
+            console.error('Failed to track usage:', error);
+            return false;
+        }
+    }
 }

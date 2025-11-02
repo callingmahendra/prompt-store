@@ -37,9 +37,19 @@ const PromptCard = ({ id, title, description, tags, rating, author, date, usageC
     checkStarStatus();
   }, [id, userId]);
 
-  const handleCopy = (e: React.MouseEvent) => {
+  const handleCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
-    toast.success("Prompt copied to clipboard!");
+    try {
+      // Note: We can't access prompt content from the card, so we'll need to fetch it
+      const prompt = await api.getPrompt(id);
+      await navigator.clipboard.writeText(prompt.content);
+      // Track usage when prompt is copied
+      await api.trackUsage(id);
+      toast.success("Prompt copied to clipboard!");
+    } catch (error) {
+      console.error('Failed to copy or track usage:', error);
+      toast.error("Failed to copy prompt");
+    }
   };
 
   const handleStar = async (e: React.MouseEvent) => {

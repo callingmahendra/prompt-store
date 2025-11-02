@@ -83,7 +83,7 @@ export class SearchIntegration {
         }
 
         // Show results
-        await this.showSearchResults(results, query, searchType.searchBy, extensionUri);
+        await this.showSearchResults(results, query, searchType.searchBy, extensionUri, promptService);
     }
 
     /**
@@ -113,7 +113,7 @@ export class SearchIntegration {
         }
 
         const results = await promptService.getPromptsByTag(selectedTag.tag);
-        await this.showSearchResults(results, selectedTag.tag, 'tags', extensionUri);
+        await this.showSearchResults(results, selectedTag.tag, 'tags', extensionUri, promptService);
     }
 
     /**
@@ -143,7 +143,7 @@ export class SearchIntegration {
         }
 
         const results = await promptService.getPromptsByAuthor(selectedAuthor.author);
-        await this.showSearchResults(results, selectedAuthor.author, 'author', extensionUri);
+        await this.showSearchResults(results, selectedAuthor.author, 'author', extensionUri, promptService);
     }
 
     /**
@@ -153,8 +153,11 @@ export class SearchIntegration {
         results: any[], 
         query: string, 
         searchBy: string,
-        extensionUri: vscode.Uri
+        extensionUri: vscode.Uri,
+        promptService?: PromptService
     ): Promise<void> {
+        // Create promptService instance if not provided
+        const service = promptService || new PromptService();
         const items = results.map(prompt => ({
             label: `$(book) ${prompt.title}`,
             description: prompt.description,
@@ -194,6 +197,7 @@ export class SearchIntegration {
                     await ChatIntegration.sendPromptToChat(prompt);
                     break;
                 case 1: // Copy to Clipboard
+                    await service.trackUsage(prompt.id);
                     await vscode.env.clipboard.writeText(prompt.content);
                     vscode.window.showInformationMessage('Prompt copied to clipboard!');
                     break;
@@ -223,6 +227,7 @@ export class SearchIntegration {
                             await ChatIntegration.sendPromptToChat(selected.prompt);
                             break;
                         case 'copy':
+                            await service.trackUsage(selected.prompt.id);
                             await vscode.env.clipboard.writeText(selected.prompt.content);
                             vscode.window.showInformationMessage('Prompt copied to clipboard!');
                             break;

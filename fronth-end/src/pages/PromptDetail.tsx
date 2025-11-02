@@ -87,9 +87,16 @@ const PromptDetail = () => {
     );
   }
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(prompt.content);
-    toast.success("Prompt copied to clipboard!");
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(prompt.content);
+      // Track usage when prompt is copied
+      await api.trackUsage(id!);
+      toast.success("Prompt copied to clipboard!");
+    } catch (error) {
+      console.error('Failed to copy or track usage:', error);
+      toast.success("Prompt copied to clipboard!");
+    }
   };
 
   const handleEdit = () => {

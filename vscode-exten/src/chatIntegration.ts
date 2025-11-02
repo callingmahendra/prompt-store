@@ -1,12 +1,17 @@
 import * as vscode from 'vscode';
+import { PromptService } from './promptService';
 
 export class ChatIntegration {
+    private static promptService = new PromptService();
     
     /**
      * Send a prompt directly to the chat interface
      */
     static async sendPromptToChat(prompt: any): Promise<void> {
         try {
+            // Track usage when prompt is sent to chat
+            await this.promptService.trackUsage(prompt.id);
+            
             // Method 1: Try to use available chat commands
             await this.sendToChatAPI(prompt);
         } catch (error) {
@@ -130,6 +135,7 @@ export class ChatIntegration {
                     await this.sendPromptToChat(prompt);
                     break;
                 case 1: // Copy to Clipboard
+                    await this.promptService.trackUsage(prompt.id);
                     await vscode.env.clipboard.writeText(prompt.content);
                     vscode.window.showInformationMessage('Prompt copied to clipboard!');
                     break;
@@ -154,6 +160,7 @@ export class ChatIntegration {
                             await this.sendPromptToChat(selected.prompt);
                             break;
                         case 'copy':
+                            await this.promptService.trackUsage(selected.prompt.id);
                             await vscode.env.clipboard.writeText(selected.prompt.content);
                             vscode.window.showInformationMessage('Prompt copied to clipboard!');
                             break;

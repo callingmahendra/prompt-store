@@ -170,4 +170,28 @@ router.get("/:id/star/:userId", async (req, res) => {
   }
 });
 
+// Track prompt usage (increment usage count)
+router.post("/:id/use", async (req, res) => {
+  try {
+    const promptRepository = AppDataSource.getRepository(Prompt);
+    const prompt = await promptRepository.findOneBy({ id: req.params.id });
+    
+    if (!prompt) {
+      return res.status(404).json({ error: "Prompt not found" });
+    }
+
+    // Increment usage count
+    prompt.usageCount = (prompt.usageCount || 0) + 1;
+    await promptRepository.save(prompt);
+
+    return res.json({ 
+      success: true, 
+      usageCount: prompt.usageCount,
+      message: "Usage tracked successfully" 
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Error tracking usage" });
+  }
+});
+
 export default router;

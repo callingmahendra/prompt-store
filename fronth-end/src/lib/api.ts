@@ -166,4 +166,22 @@ export const api = {
       return handleError(error);
     }
   },
+
+  // Track prompt usage
+  trackUsage: async (promptId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/prompts/${promptId}/use`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new APIError(response.status, 'Failed to track usage');
+      }
+      return response.json();
+    } catch (error) {
+      return handleError(error);
+    }
+  },
 };
