@@ -22,8 +22,20 @@ export class PromptService {
 
     async getPrompts(): Promise<Prompt[]> {
         try {
-            const response = await axios.get(this.baseUrl);
-            return response.data;
+            // Fetch all prompts by setting a high limit to avoid pagination
+            const response = await axios.get(this.baseUrl, {
+                params: { limit: 1000 }
+            });
+            
+            // Handle both array response and paginated response
+            if (Array.isArray(response.data)) {
+                return response.data;
+            } else if (response.data.prompts && Array.isArray(response.data.prompts)) {
+                return response.data.prompts;
+            } else {
+                console.error('Unexpected API response format:', response.data);
+                return [];
+            }
         } catch (error) {
             console.error('Failed to fetch prompts:', error);
             return [];
@@ -72,12 +84,12 @@ export class PromptService {
                 const response = await axios.get(`${this.baseUrl}/search`, {
                     params: { q: query }
                 });
-                return response.data;
+                return Array.isArray(response.data) ? response.data : response.data.prompts || [];
             } else if (searchBy === 'tags') {
                 const response = await axios.get(`${this.baseUrl}/search`, {
                     params: { tag: query }
                 });
-                return response.data;
+                return Array.isArray(response.data) ? response.data : response.data.prompts || [];
             } else {
                 // Fallback to client-side filtering for author search
                 const allPrompts = await this.getPrompts();
