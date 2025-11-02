@@ -13,9 +13,14 @@ import { X } from "lucide-react";
 const Browse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [selectedTags, setSelectedTags] = useState<string[]>(
-    searchParams.get("tags") ? searchParams.get("tags")!.split(",") : []
-  );
+  const [selectedTags, setSelectedTags] = useState<string[]>(() => {
+    const tags = searchParams.get("tags");
+    const singleTag = searchParams.get("tag");
+    
+    if (singleTag) return [singleTag];
+    if (tags) return tags.split(",");
+    return [];
+  });
   const [sortBy, setSortBy] = useState<"date" | "rating" | "usage">(
     (searchParams.get("sort") as "date" | "rating" | "usage") || "rating"
   );
@@ -53,10 +58,18 @@ const Browse = () => {
   useEffect(() => {
     const q = searchParams.get("q");
     const tags = searchParams.get("tags");
+    const singleTag = searchParams.get("tag"); // Handle single tag from home page
     const sort = searchParams.get("sort");
     
     if (q !== null) setSearchQuery(q);
-    if (tags) setSelectedTags(tags.split(","));
+    
+    // Handle both single tag and multiple tags
+    if (singleTag) {
+      setSelectedTags([singleTag]);
+    } else if (tags) {
+      setSelectedTags(tags.split(","));
+    }
+    
     if (sort) setSortBy(sort as "date" | "rating" | "usage");
   }, [searchParams]);
 
@@ -68,7 +81,11 @@ const Browse = () => {
       params.set("q", searchQuery);
     }
     
-    if (selectedTags.length > 0) {
+    if (selectedTags.length === 1) {
+      // Use single tag parameter for consistency with backend and home page
+      params.set("tag", selectedTags[0]);
+    } else if (selectedTags.length > 1) {
+      // Use multiple tags parameter for multiple selections
       params.set("tags", selectedTags.join(","));
     }
     
