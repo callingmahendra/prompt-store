@@ -184,11 +184,15 @@ const PromptDetail = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {prompt.tags.map((tag: string) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
+              {Array.isArray(prompt.tags) && prompt.tags.length > 0 ? (
+                prompt.tags.map((tag: string) => (
+                  <Badge key={tag} variant="secondary">
+                    {tag}
+                  </Badge>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">No tags available</p>
+              )}
             </div>
 
             {/* Metadata */}

@@ -37,9 +37,11 @@ const EditPrompt = () => {
     const fetchPopularTags = async () => {
       try {
         const tagsData = await api.getPopularTags(15);
-        setPopularTags(tagsData.map((tagObj: any) => tagObj.tag));
+        const tags = Array.isArray(tagsData) ? tagsData.map((tagObj: any) => tagObj.tag) : [];
+        setPopularTags(tags);
       } catch (error) {
         console.error('Failed to fetch popular tags:', error);
+        setPopularTags([]);
       }
     };
 
@@ -52,7 +54,7 @@ const EditPrompt = () => {
       setTitle(prompt.title || "");
       setDescription(prompt.description || "");
       setContent(prompt.content || "");
-      setSelectedTags(prompt.tags || []);
+      setSelectedTags(Array.isArray(prompt.tags) ? prompt.tags : []);
     }
   }, [prompt]);
 
@@ -222,16 +224,20 @@ const EditPrompt = () => {
                 <div className="space-y-2">
                   <Label>Select Tags *</Label>
                   <div className="flex flex-wrap gap-2">
-                    {popularTags.map(tag => (
-                      <Badge
-                        key={tag}
-                        variant={selectedTags.includes(tag) ? "default" : "secondary"}
-                        className="cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={() => toggleTag(tag)}
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
+                    {popularTags.length > 0 ? (
+                      popularTags.map(tag => (
+                        <Badge
+                          key={tag}
+                          variant={selectedTags.includes(tag) ? "default" : "secondary"}
+                          className="cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => toggleTag(tag)}
+                        >
+                          {tag}
+                        </Badge>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Loading popular tags...</p>
+                    )}
                   </div>
                 </div>
 
