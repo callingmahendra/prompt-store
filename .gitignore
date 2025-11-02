@@ -164,3 +164,4 @@ Dockerfile.local
 Thumbs.db
 vscode-exten/prompt-library-extension-*.vsix
 /prompts/*.md
+vscode-exten/axiom-prompts-*.vsix

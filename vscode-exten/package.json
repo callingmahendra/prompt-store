@@ -9,10 +9,11 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:promptLibrary.showPrompts"
-  ],
+
   "main": "./out/extension.js",
+  "activationEvents": [
+    "*"
+  ],
   "contributes": {
     "commands": [
       {
@@ -102,31 +103,26 @@
     "keybindings": [
       {
         "command": "promptLibrary.showPrompts",
-        "key": "ctrl+shift+p",
-        "mac": "cmd+shift+p"
-      },
-      {
-        "command": "promptLibrary.showPrompts",
-        "key": "ctrl+alt+p",
-        "mac": "cmd+alt+p",
+        "key": "ctrl+shift+alt+p",
+        "mac": "cmd+shift+alt+p",
         "when": "!inChat"
       },
       {
         "command": "promptLibrary.searchPrompts",
-        "key": "ctrl+shift+f",
-        "mac": "cmd+shift+f",
+        "key": "ctrl+shift+alt+f",
+        "mac": "cmd+shift+alt+f",
         "when": "!inChat"
       },
       {
         "command": "promptLibrary.quickSearch",
-        "key": "ctrl+alt+f",
-        "mac": "cmd+alt+f",
+        "key": "ctrl+shift+alt+q",
+        "mac": "cmd+shift+alt+q",
         "when": "!inChat"
       },
       {
         "command": "promptLibrary.showOverview",
-        "key": "ctrl+alt+o",
-        "mac": "cmd+alt+o"
+        "key": "ctrl+shift+alt+o",
+        "mac": "cmd+shift+alt+o"
       }
     ],
     "views": {
