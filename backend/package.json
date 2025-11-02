@@ -8,6 +8,7 @@
     "dev": "ts-node-dev --respawn src/index.ts",
     "build": "tsc",
     "seed": "ts-node src/seed.ts",
+    "seed-prompts": "ts-node src/seedPrompts.ts",
     "typeorm": "typeorm-ts-node-commonjs"
   },
   "keywords": [],

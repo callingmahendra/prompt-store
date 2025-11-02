@@ -184,4 +184,34 @@ export const api = {
       return handleError(error);
     }
   },
+
+  // Search prompts
+  searchPrompts: async (query?: string, tag?: string) => {
+    try {
+      const params = new URLSearchParams();
+      if (query) params.append('q', query);
+      if (tag) params.append('tag', tag);
+      
+      const response = await fetch(`${API_BASE_URL}/prompts/search?${params.toString()}`);
+      if (!response.ok) {
+        throw new APIError(response.status, 'Failed to search prompts');
+      }
+      return response.json();
+    } catch (error) {
+      return handleError(error);
+    }
+  },
+
+  // Get popular tags
+  getPopularTags: async (limit: number = 20) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/prompts/tags/popular?limit=${limit}`);
+      if (!response.ok) {
+        throw new APIError(response.status, 'Failed to fetch popular tags');
+      }
+      return response.json();
+    } catch (error) {
+      return handleError(error);
+    }
+  },
 };

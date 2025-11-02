@@ -158,19 +158,5 @@ export const mockPrompts: Prompt[] = [
   }
 ];
 
-export const popularTags = [
-  "code-review",
-  "testing",
-  "development",
-  "documentation",
-  "agile",
-  "scrum",
-  "qa",
-  "marketing",
-  "api",
-  "automation",
-  "bug-tracking",
-  "planning",
-  "copywriting",
-  "content"
-];
+// Note: popularTags is now fetched dynamically from the API
+// See api.getPopularTags() for the current implementation

@@ -90,30 +90,43 @@ export class SearchIntegration {
      * Browse prompts by selecting from available tags
      */
     private static async browseByTags(promptService: PromptService, extensionUri: vscode.Uri): Promise<void> {
-        const tags = await promptService.getAllTags();
-        
-        if (tags.length === 0) {
-            vscode.window.showInformationMessage('No tags found');
-            return;
-        }
-
-        const selectedTag = await vscode.window.showQuickPick(
-            tags.map(tag => ({
-                label: `$(tag) ${tag}`,
-                description: tag,
-                tag: tag
-            })),
-            {
-                placeHolder: 'Select a tag to browse prompts'
+        try {
+            // Try to get popular tags first, fallback to all tags
+            let tags: string[] = [];
+            try {
+                const popularTags = await promptService.getPopularTags(20);
+                tags = popularTags.map(tagObj => tagObj.tag);
+            } catch (error) {
+                console.warn('Failed to get popular tags, falling back to all tags:', error);
+                tags = await promptService.getAllTags();
             }
-        );
+            
+            if (tags.length === 0) {
+                vscode.window.showInformationMessage('No tags found');
+                return;
+            }
 
-        if (!selectedTag) {
-            return;
+            const selectedTag = await vscode.window.showQuickPick(
+                tags.map(tag => ({
+                    label: `$(tag) ${tag}`,
+                    description: tag,
+                    tag: tag
+                })),
+                {
+                    placeHolder: 'Select a tag to browse prompts'
+                }
+            );
+
+            if (!selectedTag) {
+                return;
+            }
+
+            const results = await promptService.getPromptsByTag(selectedTag.tag);
+            await this.showSearchResults(results, selectedTag.tag, 'tags', extensionUri, promptService);
+        } catch (error) {
+            console.error('Error browsing by tags:', error);
+            vscode.window.showErrorMessage('Failed to browse tags');
         }
-
-        const results = await promptService.getPromptsByTag(selectedTag.tag);
-        await this.showSearchResults(results, selectedTag.tag, 'tags', extensionUri, promptService);
     }
 
     /**

@@ -162,4 +162,5 @@ Dockerfile.local
 # misc
 .DS_Store
 Thumbs.db
-vscode-exten/prompt-library-extension-0.0.1.vsix
+vscode-exten/prompt-library-extension-*.vsix
+/prompts/*.md

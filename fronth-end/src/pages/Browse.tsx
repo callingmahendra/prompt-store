@@ -6,7 +6,6 @@ import PromptCard from "@/components/PromptCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { popularTags } from "@/lib/mockData";
 import { api } from "@/lib/api";
 import type { Prompt } from "@/lib/mockData";
 import { X } from "lucide-react";
@@ -19,24 +18,34 @@ const Browse = () => {
   );
   const [sortBy, setSortBy] = useState<"date" | "rating" | "usage">("rating");
   const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [popularTags, setPopularTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchPrompts = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true);
-        console.log('Fetching prompts...');
-        const data = await api.getAllPrompts();
-        console.log('Received prompts:', data);
-        setPrompts(data);
+        console.log('Fetching prompts and tags...');
+        
+        // Fetch prompts and popular tags in parallel
+        const [promptsData, tagsData] = await Promise.all([
+          api.getAllPrompts(),
+          api.getPopularTags(15) // Get top 15 tags for the filter
+        ]);
+        
+        console.log('Received prompts:', promptsData);
+        console.log('Received tags:', tagsData);
+        
+        setPrompts(promptsData);
+        setPopularTags(tagsData.map((tagObj: any) => tagObj.tag));
       } catch (error) {
-        console.error('Failed to fetch prompts:', error);
+        console.error('Failed to fetch data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchPrompts();
+    fetchData();
   }, []);
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { popularTags } from "@/lib/mockData";
 import { toast } from "sonner";
 import { Plus, X } from "lucide-react";
 import { api } from "@/lib/api";
@@ -19,6 +18,20 @@ const CreatePrompt = () => {
   const [content, setContent] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState("");
+  const [popularTags, setPopularTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchPopularTags = async () => {
+      try {
+        const tagsData = await api.getPopularTags(15);
+        setPopularTags(tagsData.map((tagObj: any) => tagObj.tag));
+      } catch (error) {
+        console.error('Failed to fetch popular tags:', error);
+      }
+    };
+
+    fetchPopularTags();
+  }, []);
 
   const toggleTag = (tag: string) => {
     setSelectedTags(prev =>

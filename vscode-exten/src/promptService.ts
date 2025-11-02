@@ -63,9 +63,45 @@ export class PromptService {
     }
 
     /**
-     * Search prompts by various criteria
+     * Search prompts by various criteria using the API
      */
     async searchPrompts(query: string, searchBy: 'title' | 'tags' | 'content' | 'author' | 'all' = 'all'): Promise<Prompt[]> {
+        try {
+            // Use the API search endpoint for better performance
+            if (searchBy === 'all' || searchBy === 'title' || searchBy === 'content') {
+                const response = await axios.get(`${this.baseUrl}/search`, {
+                    params: { q: query }
+                });
+                return response.data;
+            } else if (searchBy === 'tags') {
+                const response = await axios.get(`${this.baseUrl}/search`, {
+                    params: { tag: query }
+                });
+                return response.data;
+            } else {
+                // Fallback to client-side filtering for author search
+                const allPrompts = await this.getPrompts();
+                const searchTerm = query.toLowerCase().trim();
+                
+                if (!searchTerm) {
+                    return allPrompts;
+                }
+
+                return allPrompts.filter(prompt => {
+                    return prompt.author.toLowerCase().includes(searchTerm);
+                });
+            }
+        } catch (error) {
+            console.error('Failed to search prompts:', error);
+            // Fallback to client-side search
+            return this.searchPromptsClientSide(query, searchBy);
+        }
+    }
+
+    /**
+     * Client-side search fallback
+     */
+    private async searchPromptsClientSide(query: string, searchBy: 'title' | 'tags' | 'content' | 'author' | 'all' = 'all'): Promise<Prompt[]> {
         try {
             const allPrompts = await this.getPrompts();
             const searchTerm = query.toLowerCase().trim();
@@ -96,7 +132,7 @@ export class PromptService {
                 }
             });
         } catch (error) {
-            console.error('Failed to search prompts:', error);
+            console.error('Failed to search prompts client-side:', error);
             return [];
         }
     }
@@ -125,6 +161,19 @@ export class PromptService {
             return [...new Set(allTags)].sort();
         } catch (error) {
             console.error('Failed to get tags:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Get popular tags from the API
+     */
+    async getPopularTags(limit: number = 20): Promise<Array<{tag: string, count: number}>> {
+        try {
+            const response = await axios.get(`${this.baseUrl}/tags/popular?limit=${limit}`);
+            return response.data;
+        } catch (error) {
+            console.error('Failed to get popular tags:', error);
             return [];
         }
     }

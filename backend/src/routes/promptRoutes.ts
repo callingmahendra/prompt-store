@@ -22,6 +22,68 @@ router.get("/", async (_req, res) => {
   }
 });
 
+// Search prompts (must come before /:id route)
+router.get("/search", async (req, res) => {
+  try {
+    const { q, tag } = req.query;
+    const promptRepository = AppDataSource.getRepository(Prompt);
+    
+    let queryBuilder = promptRepository.createQueryBuilder("prompt")
+      .leftJoinAndSelect("prompt.comments", "comments")
+      .leftJoinAndSelect("prompt.versions", "versions")
+      .leftJoinAndSelect("prompt.stars", "stars");
+
+    if (q && typeof q === 'string') {
+      queryBuilder = queryBuilder.where(
+        "prompt.title LIKE :search OR prompt.description LIKE :search OR prompt.content LIKE :search",
+        { search: `%${q}%` }
+      );
+    }
+
+    if (tag && typeof tag === 'string') {
+      queryBuilder = queryBuilder.andWhere("prompt.tags LIKE :tag", { tag: `%${tag}%` });
+    }
+
+    const prompts = await queryBuilder.getMany();
+    return res.json(prompts);
+  } catch (error) {
+    return res.status(500).json({ error: "Error searching prompts" });
+  }
+});
+
+// Get popular tags
+router.get("/tags/popular", async (req, res) => {
+  try {
+    const { limit = 20 } = req.query;
+    const promptRepository = AppDataSource.getRepository(Prompt);
+    const prompts = await promptRepository.find();
+
+    const tagFrequency: { [key: string]: number } = {};
+
+    // Count tag frequency
+    prompts.forEach(prompt => {
+      if (prompt.tags && Array.isArray(prompt.tags)) {
+        prompt.tags.forEach(tag => {
+          if (tag && tag.trim()) {
+            const cleanTag = tag.trim().toLowerCase();
+            tagFrequency[cleanTag] = (tagFrequency[cleanTag] || 0) + 1;
+          }
+        });
+      }
+    });
+
+    // Sort tags by frequency and return top tags
+    const sortedTags = Object.entries(tagFrequency)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, Number(limit))
+      .map(([tag, count]) => ({ tag, count }));
+
+    return res.json(sortedTags);
+  } catch (error) {
+    return res.status(500).json({ error: "Error fetching popular tags" });
+  }
+});
+
 // Get a single prompt
 router.get("/:id", async (req, res) => {
   try {

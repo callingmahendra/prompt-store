@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import SearchBar from "@/components/SearchBar";
@@ -6,11 +6,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Users, Zap, Search } from "lucide-react";
-import { popularTags } from "@/lib/mockData";
+import { api } from "@/lib/api";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [popularTags, setPopularTags] = useState<string[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPopularTags = async () => {
+      try {
+        const tagsData = await api.getPopularTags(10);
+        setPopularTags(tagsData.map((tagObj: any) => tagObj.tag));
+      } catch (error) {
+        console.error('Failed to fetch popular tags:', error);
+      }
+    };
+
+    fetchPopularTags();
+  }, []);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {

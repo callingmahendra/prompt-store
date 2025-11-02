@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { popularTags } from "@/lib/mockData";
+
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { Plus, X } from "lucide-react";
@@ -30,6 +30,21 @@ const EditPrompt = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState("");
   const [changeNotes, setChangeNotes] = useState("");
+  const [popularTags, setPopularTags] = useState<string[]>([]);
+
+  // Fetch popular tags
+  useEffect(() => {
+    const fetchPopularTags = async () => {
+      try {
+        const tagsData = await api.getPopularTags(15);
+        setPopularTags(tagsData.map((tagObj: any) => tagObj.tag));
+      } catch (error) {
+        console.error('Failed to fetch popular tags:', error);
+      }
+    };
+
+    fetchPopularTags();
+  }, []);
 
   // Update form fields when prompt data is loaded
   useEffect(() => {
