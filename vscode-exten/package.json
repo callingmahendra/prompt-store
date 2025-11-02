@@ -9,10 +9,22 @@
   "categories": [
     "Other"
   ],
-
-  "main": "./out/extension.js",
+  "keywords": [
+    "prompts",
+    "ai",
+    "productivity",
+    "templates",
+    "snippets"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/axiom-prompts/vscode-extension"
+  },
+  "license": "MIT",
+  "publisher": "axiom-prompts",
+  "main": "./dist/extension.js",
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
   "contributes": {
     "commands": [
@@ -125,15 +137,6 @@
         "mac": "cmd+shift+alt+o"
       }
     ],
-    "views": {
-      "explorer": [
-        {
-          "id": "promptLibrary",
-          "name": "Axiom Prompts",
-          "when": "true"
-        }
-      ]
-    },
     "menus": {
       "view/title": [
         {
@@ -249,7 +252,12 @@
         },
         "promptLibrary.defaultViewMode": {
           "type": "string",
-          "enum": ["categories", "flat", "authors", "recent"],
+          "enum": [
+            "categories",
+            "flat",
+            "authors",
+            "recent"
+          ],
           "default": "categories",
           "description": "Default view mode for the prompt library tree"
         },
@@ -276,14 +284,20 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out"
   },
   "devDependencies": {
-    "@types/vscode": "^1.90.0",
     "@types/node": "16.x",
-    "typescript": "^4.9.4"
+    "@types/vscode": "^1.90.0",
+    "ts-loader": "^9.5.4",
+    "typescript": "^4.9.4",
+    "webpack": "^5.102.1",
+    "webpack-cli": "^6.0.1"
   },
   "dependencies": {
     "axios": "^1.6.0"
