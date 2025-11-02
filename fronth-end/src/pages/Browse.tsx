@@ -91,6 +91,10 @@ const Browse = () => {
     setSortBy("rating");
   };
 
+  const handlePromptDelete = (deletedId: string) => {
+    setPrompts(prev => prev.filter(prompt => prompt.id !== deletedId));
+  };
+
   const filteredPrompts = useMemo(() => {
     let filtered = prompts;
 
@@ -215,6 +219,7 @@ const Browse = () => {
                     usageCount={prompt.usageCount || 0}
                     stars={[]}
                     comments={prompt.comments || []}
+                    onDelete={handlePromptDelete}
                   />
                 ))}
               </div>

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Comments from "@/components/Comments";
+import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
 
 const PromptDetail = () => {
   const { id } = useParams();
@@ -119,6 +120,20 @@ const PromptDetail = () => {
     setComments(prev => [...prev, newComment]);
   };
 
+  const handleDelete = async () => {
+    try {
+      await api.deletePrompt(id!);
+      toast.success("Prompt deleted successfully!");
+      // Navigate back to browse page with a slight delay to show the success message
+      setTimeout(() => {
+        navigate("/browse");
+      }, 1000);
+    } catch (error) {
+      console.error('Failed to delete prompt:', error);
+      toast.error("Failed to delete prompt");
+    }
+  };
+
   const handleBack = () => {
     // Navigate back to browse page with preserved search parameters
     navigate(`/browse${location.search}`);
@@ -160,6 +175,11 @@ const PromptDetail = () => {
                   <Edit className="h-4 w-4" />
                   Edit
                 </Button>
+                <DeleteConfirmDialog
+                  title="Delete Prompt"
+                  description={`Are you sure you want to delete "${prompt.title}"? This action cannot be undone.`}
+                  onConfirm={handleDelete}
+                />
               </div>
             </div>
 

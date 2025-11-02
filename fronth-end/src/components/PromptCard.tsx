@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import DeleteConfirmDialog from "@/components/DeleteConfirmDialog";
 
 interface PromptCardProps {
   id: string;
@@ -18,9 +19,10 @@ interface PromptCardProps {
   usageCount: number;
   stars?: any[];
   comments?: any[];
+  onDelete?: (id: string) => void;
 }
 
-const PromptCard = ({ id, title, description, tags, rating, author, date, usageCount, stars = [], comments = [] }: PromptCardProps) => {
+const PromptCard = ({ id, title, description, tags, rating, author, date, usageCount, stars = [], comments = [], onDelete }: PromptCardProps) => {
   const location = useLocation();
   const [isStarred, setIsStarred] = useState(false);
   const [starCount, setStarCount] = useState(stars.length);
@@ -62,6 +64,19 @@ const PromptCard = ({ id, title, description, tags, rating, author, date, usageC
       toast.success(starred ? "Prompt starred!" : "Prompt unstarred!");
     } catch (error) {
       console.error('Failed to toggle star:', error);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await api.deletePrompt(id);
+      toast.success("Prompt deleted successfully!");
+      if (onDelete) {
+        onDelete(id);
+      }
+    } catch (error) {
+      console.error('Failed to delete prompt:', error);
+      toast.error("Failed to delete prompt");
     }
   };
 
@@ -107,6 +122,18 @@ const PromptCard = ({ id, title, description, tags, rating, author, date, usageC
               >
                 <Copy className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors" />
               </Button>
+              {onDelete && (
+                <div onClick={(e) => e.preventDefault()}>
+                  <DeleteConfirmDialog
+                    title="Delete Prompt"
+                    description={`Are you sure you want to delete "${title}"? This action cannot be undone.`}
+                    onConfirm={handleDelete}
+                    variant="ghost"
+                    size="icon"
+                    className="opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                  />
+                </div>
+              )}
             </div>
           </div>
           <GlassCardDescription className="line-clamp-2 text-sm leading-relaxed">

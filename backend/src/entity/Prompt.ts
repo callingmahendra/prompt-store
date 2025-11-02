@@ -32,12 +32,12 @@ export class Prompt {
   @Column({ default: 0 })
   usageCount: number;
 
-  @OneToMany(() => Comment, comment => comment.prompt)
+  @OneToMany(() => Comment, comment => comment.prompt, { cascade: true })
   comments: Comment[];
 
-  @OneToMany(() => Version, version => version.prompt)
+  @OneToMany(() => Version, version => version.prompt, { cascade: true })
   versions: Version[];
 
-  @OneToMany(() => Star, star => star.prompt)
+  @OneToMany(() => Star, star => star.prompt, { cascade: true })
   stars: Star[];
 }

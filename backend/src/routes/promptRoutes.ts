@@ -171,12 +171,27 @@ router.put("/:id", validatePromptUpdateInput, async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const promptRepository = AppDataSource.getRepository(Prompt);
-    const result = await promptRepository.delete(req.params.id);
-    if (result.affected === 0) {
+    const commentRepository = AppDataSource.getRepository(Comment);
+    const versionRepository = AppDataSource.getRepository(Version);
+    const starRepository = AppDataSource.getRepository(Star);
+    
+    // Check if prompt exists
+    const prompt = await promptRepository.findOneBy({ id: req.params.id });
+    if (!prompt) {
       return res.status(404).json({ error: "Prompt not found" });
     }
+
+    // Delete related entities first (manual cascade)
+    await commentRepository.delete({ prompt: { id: req.params.id } });
+    await versionRepository.delete({ prompt: { id: req.params.id } });
+    await starRepository.delete({ prompt: { id: req.params.id } });
+    
+    // Now delete the prompt
+    await promptRepository.delete(req.params.id);
+    
     return res.status(204).send();
   } catch (error) {
+    console.error("Error deleting prompt:", error);
     return res.status(500).json({ error: "Error deleting prompt" });
   }
 });
