@@ -4,6 +4,7 @@ import cors from "cors";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 import promptRoutes from "./routes/promptRoutes";
+import statsRoutes from "./routes/statsRoutes";
 import { errorHandler } from "./middleware/validation";
 import path from "path";
 
@@ -26,6 +27,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/prompts", promptRoutes);
+app.use("/api/stats", statsRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
